@@ -1,12 +1,2 @@
-# MovieWala - GitHub CODEOWNERS File
-# Defines the individuals/teams responsible for reviewing pull requests.
-# More info: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-
-# Default owner for everything in the repository
+# Default code owner for every file in the repository
 * @androdevsatyam
-
-# Specific file & folder owners (all assigned to primary maintainer)
-/assets/ @androdevsatyam
-/css/    @androdevsatyam
-/js/     @androdevsatyam
-/index.html @androdevsatyam
