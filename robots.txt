@@ -6,3 +6,4 @@ Allow: /
 
 # XML Sitemap Index
 Sitemap: https://androdevsatyam.github.io/Movie-Wala/sitemap.xml
+

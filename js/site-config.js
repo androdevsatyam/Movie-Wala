@@ -151,3 +151,4 @@ const SITE_CONFIG = {
 
 // Export to global scope
 window.SITE_CONFIG = SITE_CONFIG;
+
