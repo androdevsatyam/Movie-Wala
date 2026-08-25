@@ -1364,7 +1364,7 @@ body {
 .site-footer {
   background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
-  padding: 1.75rem;
+  padding: 1.75rem 1.5rem;
   margin-top: auto;
 }
 
@@ -1374,25 +1374,107 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
 
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.footer-developer {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.developer-name {
+  color: var(--accent-cyan);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.footer-rights {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.footer-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-dedication {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.4rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dedication-text {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.dedication-names {
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.heart-icon {
+  display: inline-block;
+  animation: heartbeat 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.25); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.2); }
+  70% { transform: scale(1); }
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
 .footer-badges {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .tech-badge {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  padding: 0.2rem 0.55rem;
+  padding: 0.25rem 0.6rem;
   border-radius: var(--radius-xs);
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-secondary);
+}
+
+.license-badge {
+  color: var(--accent-primary);
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 /* --------------------------------------------------------------------------
@@ -1493,6 +1575,19 @@ body {
     flex-direction: column;
     text-align: center;
     align-items: center;
+    gap: 1.25rem;
+  }
+
+  .footer-left {
+    align-items: center;
+  }
+
+  .footer-right {
+    justify-content: center;
+  }
+
+  .footer-badges {
+    justify-content: center;
   }
 
   .toast-container {
