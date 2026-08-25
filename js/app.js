@@ -245,6 +245,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
       this.filteredVideos = results;
 
+      // When searching is active: Hide Hero Slider & Switch to Vertical List Layout
+      if (this.searchQuery) {
+        if (this.elements.sliderContainer) {
+          this.elements.sliderContainer.classList.add('hidden');
+        }
+        if (this.elements.galleryGrid) {
+          this.elements.galleryGrid.classList.add('vertical-list-mode');
+        }
+      } else {
+        if (this.elements.sliderContainer) {
+          this.elements.sliderContainer.classList.remove('hidden');
+        }
+        if (this.elements.galleryGrid) {
+          this.elements.galleryGrid.classList.remove('vertical-list-mode');
+        }
+      }
+
       // Update Section Heading
       if (this.elements.galleryHeading) {
         if (this.searchQuery) {
