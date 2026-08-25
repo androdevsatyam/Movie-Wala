@@ -3,9 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="description" content="MovieWala - Premium OTT Video Streaming & Cinema Gallery.">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#050811">
-  <title>MovieWala | Premium Video Streaming</title>
+
+  <!-- Primary SEO Metadata -->
+  <title>MovieWala | Discover & Watch Movies Online</title>
+  <meta name="description" id="metaDescription" content="Discover and stream curated movies and cinema on MovieWala – Your Movie Adda, Anytime. Explore trending films, 4K UHD movies, and full-length cinema with zero buffering.">
+
+  <!-- Canonical URL (Configurable Base URL for GitHub Pages / Custom Domain) -->
+  <link rel="canonical" id="canonicalUrl" href="https://androdevsatyam.github.io/Movie-Wala/">
+
+  <!-- Open Graph / Facebook / WhatsApp Social Metadata -->
+  <meta property="og:site_name" content="MovieWala">
+  <meta property="og:type" id="ogType" content="website">
+  <meta property="og:title" id="ogTitle" content="MovieWala | Discover & Watch Movies Online">
+  <meta property="og:description" id="ogDescription" content="Discover and stream curated movies and cinema on MovieWala – Your Movie Adda, Anytime. Explore trending films, 4K UHD movies, and full-length cinema with zero buffering.">
+  <meta property="og:image" id="ogImage" content="https://androdevsatyam.github.io/Movie-Wala/assets/images/logo.svg">
+  <meta property="og:url" id="ogUrl" content="https://androdevsatyam.github.io/Movie-Wala/">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twitterTitle" content="MovieWala | Discover & Watch Movies Online">
+  <meta name="twitter:description" id="twitterDescription" content="Discover and stream curated movies and cinema on MovieWala – Your Movie Adda, Anytime. Explore trending films, 4K UHD movies, and full-length cinema with zero buffering.">
+  <meta name="twitter:image" id="twitterImage" content="https://androdevsatyam.github.io/Movie-Wala/assets/images/logo.svg">
+
+  <!-- Google Search Console Verification (Uncomment and add token when verifying domain) -->
+  <!-- <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_TOKEN_HERE"> -->
+
+  <!-- Structured Data (JSON-LD) for Search Engines -->
+  <script id="jsonLdStructuredData" type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "MovieWala",
+    "alternateName": "Movie Wala",
+    "description": "Discover and stream curated movies and cinema on MovieWala – Your Movie Adda, Anytime. Explore trending films, 4K UHD movies, and full-length cinema.",
+    "url": "https://androdevsatyam.github.io/Movie-Wala/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://androdevsatyam.github.io/Movie-Wala/?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   
   <!-- Modern SVG Favicon -->
   <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
@@ -20,6 +63,9 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Semantic Primary H1 for Screen Readers and Search Engine Indexers -->
+  <h1 class="sr-only">Discover Movies on MovieWala – Your Movie Adda, Anytime</h1>
+
   <!-- Header / Premium OTT Navigation Bar -->
   <header class="site-header">
     <div class="header-container">
@@ -284,6 +330,7 @@
   </footer>
 
   <!-- Modular Application Scripts -->
+  <script src="js/site-config.js" defer></script>
   <script src="js/video-service.js" defer></script>
   <script src="js/slider.js" defer></script>
   <script src="js/video-player.js" defer></script>

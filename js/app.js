@@ -1,16 +1,12 @@
 /**
- * Main Application Orchestrator
- * High-End OTT Video Streaming Platform with Instant Live Search & Filter
+ * High-End OTT Streaming Web Application Controller
+ * Manages video fetching, live search dropdown, category filtering,
+ * deep-linking URL router, dynamic SEO metadata, and Schema.org structured data.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   const App = {
-    videos: [],
-    filteredVideos: [],
-    activeCategory: 'all',
-    searchQuery: '',
-
-    // DOM Element References
+    // Cached DOM Elements
     elements: {
       // Slider Elements
       sliderContainer: document.getElementById('heroSlider'),
@@ -49,8 +45,27 @@ document.addEventListener('DOMContentLoaded', () => {
       searchInput: document.getElementById('searchInput'),
       searchClear: document.getElementById('searchClear'),
       searchDropdown: document.getElementById('searchDropdown'),
-      toastContainer: document.getElementById('toastContainer')
+      toastContainer: document.getElementById('toastContainer'),
+
+      // SEO Elements
+      metaDescription: document.getElementById('metaDescription'),
+      canonicalUrl: document.getElementById('canonicalUrl'),
+      ogType: document.getElementById('ogType'),
+      ogTitle: document.getElementById('ogTitle'),
+      ogDescription: document.getElementById('ogDescription'),
+      ogImage: document.getElementById('ogImage'),
+      ogUrl: document.getElementById('ogUrl'),
+      twitterTitle: document.getElementById('twitterTitle'),
+      twitterDescription: document.getElementById('twitterDescription'),
+      twitterImage: document.getElementById('twitterImage'),
+      jsonLdStructuredData: document.getElementById('jsonLdStructuredData')
     },
+
+    // Application State
+    videos: [],
+    filteredVideos: [],
+    activeCategory: 'all',
+    searchQuery: '',
 
     /**
      * Initializes the application.
@@ -58,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async init() {
       window.App = this;
 
-      // Initialize VideoPlayer with complete DOM hooks
+      // Initialize VideoPlayer with complete DOM hooks and callbacks
       VideoPlayer.init(
         {
           section: this.elements.playerSection,
@@ -74,10 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
           btnNext: this.elements.btnNext,
           btnClose: this.elements.btnClosePlayer
         },
-        () => this.playNextVideo()
+        () => this.playNextVideo(),
+        () => this.onPlayerClosed()
       );
 
       this.bindEvents();
+      this.initRouter();
       await this.fetchAndRenderVideos();
     },
 
@@ -115,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
           } else if (e.key === 'Enter') {
             e.preventDefault();
             this.hideSearchDropdown();
-            // When Enter is pressed, focus the matching video in the hero slider
+            // Focus matched video in the hero slider or play if direct search
             if (this.filteredVideos.length > 0) {
               const matchedVideo = this.filteredVideos[0];
               const originalIndex = this.videos.findIndex((v) => v.file_id === matchedVideo.file_id);
@@ -145,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Category filter pills handler
+      // Category Pill Filters
       if (this.elements.categoryPills) {
         this.elements.categoryPills.forEach((pill) => {
           pill.addEventListener('click', () => {
@@ -155,6 +172,41 @@ document.addEventListener('DOMContentLoaded', () => {
             this.applyFilters();
           });
         });
+      }
+    },
+
+    /**
+     * Initializes client-side deep-link routing via HTML5 History API.
+     */
+    initRouter() {
+      window.addEventListener('popstate', (e) => {
+        this.handleUrlRouting();
+      });
+    },
+
+    /**
+     * Inspects URL query params and opens target movie if deep-link (?movie=slug) is present.
+     */
+    handleUrlRouting() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieSlug = urlParams.get('movie');
+
+      if (movieSlug && this.videos.length > 0) {
+        const foundIndex = this.videos.findIndex(
+          (v) => (v.slug && v.slug.toLowerCase() === movieSlug.toLowerCase()) || 
+                 (window.SITE_CONFIG && window.SITE_CONFIG.generateSlug(v.name) === movieSlug.toLowerCase())
+        );
+
+        if (foundIndex >= 0) {
+          const video = this.videos[foundIndex];
+          this.selectAndPlayVideo(video, foundIndex, false);
+          return;
+        }
+      }
+
+      // If no movie param in URL, ensure player is closed and default SEO is restored
+      if (!movieSlug && VideoPlayer.currentVideo) {
+        VideoPlayer.closePlayer();
       }
     },
 
@@ -188,15 +240,15 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           this.videos,
           (selectedVideo, index) => {
-            this.selectAndPlayVideo(selectedVideo, index);
+            this.selectAndPlayVideo(selectedVideo, index, true);
           }
         );
 
         // 2. Render Catalog Cards
         this.renderGallery(this.filteredVideos);
 
-        // 3. User choice by default (Placeholder state on start)
-        VideoPlayer.showPlaceholder();
+        // 3. Handle Deep-linking URL routing (e.g. ?movie=slug)
+        this.handleUrlRouting();
 
       } catch (error) {
         this.showState('error', error.message || 'Unable to load video catalog. Please try again later.');
@@ -206,13 +258,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Handles selecting and completely re-initiating the video player.
+     * Updates document URL parameter, metadata, Open Graph, and JSON-LD schema.
+     * 
      * @param {Object} video
      * @param {number} index
+     * @param {boolean} [shouldPushState=true]
      */
-    selectAndPlayVideo(video, index) {
+    selectAndPlayVideo(video, index, shouldPushState = true) {
+      if (!video) return;
+
+      // Update URL with deep link without page reload
+      if (shouldPushState) {
+        const slug = video.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(video.name) : `video-${index + 1}`);
+        const newUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : `?movie=${encodeURIComponent(slug)}`;
+        window.history.pushState({ slug: slug, index: index }, '', newUrl);
+      }
+
+      // Dynamic SEO and Social Media Metadata Update
+      this.updateDocumentSeo(video);
+
+      // Reinit DOM player
       VideoPlayer.reinitPlayer(video, index, this.videos.length);
       this.showToast(`Now Streaming: ${video.name}`);
       this.hideSearchDropdown();
+    },
+
+    /**
+     * Callback triggered when the player is closed by the user.
+     * Restores clean URL and homepage SEO metadata.
+     */
+    onPlayerClosed() {
+      const cleanUrl = window.location.pathname.replace(/\/index\.html$/, '') || './';
+      window.history.pushState(null, '', cleanUrl);
+      this.restoreDefaultSeo();
+    },
+
+    /**
+     * Dynamically updates page Title, Meta Description, Open Graph, Twitter Cards,
+     * Canonical link, and JSON-LD structured data for the active movie.
+     * 
+     * @param {Object} video
+     */
+    updateDocumentSeo(video) {
+      if (!video) return;
+
+      const siteName = window.SITE_CONFIG ? window.SITE_CONFIG.siteName : 'MovieWala';
+      const tagline = window.SITE_CONFIG ? window.SITE_CONFIG.tagline : 'Your Movie Adda, Anytime.';
+      const slug = video.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(video.name) : 'movie');
+      const movieUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : window.location.href;
+      const imageUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getAbsoluteUrl(video.picture) : video.picture;
+      const desc = video.description || `Stream ${video.name} in full HD on ${siteName} – ${tagline}`;
+
+      // 1. Page Title
+      document.title = `${video.name} | Watch on ${siteName}`;
+
+      // 2. Meta Description & Canonical
+      if (this.elements.metaDescription) {
+        this.elements.metaDescription.setAttribute('content', desc);
+      }
+      if (this.elements.canonicalUrl) {
+        this.elements.canonicalUrl.setAttribute('href', movieUrl);
+      }
+
+      // 3. Open Graph
+      if (this.elements.ogType) this.elements.ogType.setAttribute('content', 'video.other');
+      if (this.elements.ogTitle) this.elements.ogTitle.setAttribute('content', `${video.name} | ${siteName}`);
+      if (this.elements.ogDescription) this.elements.ogDescription.setAttribute('content', desc);
+      if (this.elements.ogImage) this.elements.ogImage.setAttribute('content', imageUrl);
+      if (this.elements.ogUrl) this.elements.ogUrl.setAttribute('content', movieUrl);
+
+      // 4. Twitter Cards
+      if (this.elements.twitterTitle) this.elements.twitterTitle.setAttribute('content', `${video.name} | ${siteName}`);
+      if (this.elements.twitterDescription) this.elements.twitterDescription.setAttribute('content', desc);
+      if (this.elements.twitterImage) this.elements.twitterImage.setAttribute('content', imageUrl);
+
+      // 5. Schema.org JSON-LD Structured Data
+      if (this.elements.jsonLdStructuredData && window.SITE_CONFIG) {
+        const schemaObj = window.SITE_CONFIG.getMovieSchema(video);
+        this.elements.jsonLdStructuredData.textContent = JSON.stringify(schemaObj, null, 2);
+      }
+    },
+
+    /**
+     * Restores default homepage SEO metadata and WebSite Schema.org JSON-LD.
+     */
+    restoreDefaultSeo() {
+      if (!window.SITE_CONFIG) return;
+
+      const cfg = window.SITE_CONFIG;
+
+      document.title = cfg.defaultTitle;
+
+      if (this.elements.metaDescription) {
+        this.elements.metaDescription.setAttribute('content', cfg.defaultDescription);
+      }
+      if (this.elements.canonicalUrl) {
+        this.elements.canonicalUrl.setAttribute('href', `${cfg.getBaseUrl()}/`);
+      }
+
+      // Open Graph
+      if (this.elements.ogType) this.elements.ogType.setAttribute('content', 'website');
+      if (this.elements.ogTitle) this.elements.ogTitle.setAttribute('content', cfg.defaultTitle);
+      if (this.elements.ogDescription) this.elements.ogDescription.setAttribute('content', cfg.defaultDescription);
+      if (this.elements.ogImage) this.elements.ogImage.setAttribute('content', cfg.getAbsoluteUrl(cfg.defaultImage));
+      if (this.elements.ogUrl) this.elements.ogUrl.setAttribute('content', `${cfg.getBaseUrl()}/`);
+
+      // Twitter Cards
+      if (this.elements.twitterTitle) this.elements.twitterTitle.setAttribute('content', cfg.defaultTitle);
+      if (this.elements.twitterDescription) this.elements.twitterDescription.setAttribute('content', cfg.defaultDescription);
+      if (this.elements.twitterImage) this.elements.twitterImage.setAttribute('content', cfg.getAbsoluteUrl(cfg.defaultImage));
+
+      // JSON-LD Structured Data
+      if (this.elements.jsonLdStructuredData) {
+        const websiteSchema = cfg.getWebsiteSchema();
+        this.elements.jsonLdStructuredData.textContent = JSON.stringify(websiteSchema, null, 2);
+      }
     },
 
     /**
@@ -221,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
     playNextVideo() {
       if (this.videos.length === 0) return;
       const nextIdx = (VideoPlayer.currentIndex + 1) % this.videos.length;
-      this.selectAndPlayVideo(this.videos[nextIdx], nextIdx);
+      this.selectAndPlayVideo(this.videos[nextIdx], nextIdx, true);
     },
 
     /**
@@ -239,7 +399,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (searchWords.length > 0) {
         results = results.filter((video) => {
           const title = (video.name || '').toLowerCase();
-          return searchWords.every((word) => title.includes(word));
+          const genre = (video.genre || '').toLowerCase();
+          const lang = (video.language || '').toLowerCase();
+          const searchContent = `${title} ${genre} ${lang}`;
+          return searchWords.every((word) => searchContent.includes(word));
         });
       }
 
@@ -358,8 +521,12 @@ document.addEventListener('DOMContentLoaded', () => {
       this.elements.searchDropdown.appendChild(headerItem);
 
       matches.forEach((video, idx) => {
-        const item = document.createElement('div');
+        const slug = video.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(video.name) : `video-${idx + 1}`);
+        const movieUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : `?movie=${encodeURIComponent(slug)}`;
+
+        const item = document.createElement('a');
         item.className = 'dropdown-item';
+        item.href = movieUrl;
         item.setAttribute('role', 'option');
         item.setAttribute('tabindex', '0');
 
@@ -367,32 +534,34 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="dropdown-thumb-wrap">
             <img 
               src="${video.picture}" 
-              alt="${video.name}" 
+              alt="${video.name} thumbnail" 
               class="dropdown-thumb"
+              loading="lazy"
               onerror="this.onerror=null;this.src='assets/images/placeholder.svg';"
             />
           </div>
           <div class="dropdown-info">
-            <div class="dropdown-title">${this.highlightMatch(video.name, query)}</div>
-            <span class="dropdown-tag">HD Stream</span>
+            <span class="dropdown-title">${this.highlightMatch(video.name, query)}</span>
+            <span class="dropdown-tag">4K HD Stream</span>
           </div>
-          <div class="dropdown-play-icon">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <div class="dropdown-play-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
           </div>
         `;
 
-        const playAction = () => {
-          const originalIndex = this.videos.findIndex((v) => v.file_id === video.file_id);
-          this.selectAndPlayVideo(video, originalIndex >= 0 ? originalIndex : idx);
-        };
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const origIdx = this.videos.findIndex((v) => v.file_id === video.file_id);
+          this.selectAndPlayVideo(video, origIdx >= 0 ? origIdx : idx, true);
+        });
 
-        item.addEventListener('click', playAction);
         item.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            playAction();
+            const origIdx = this.videos.findIndex((v) => v.file_id === video.file_id);
+            this.selectAndPlayVideo(video, origIdx >= 0 ? origIdx : idx, true);
           }
         });
 
@@ -401,18 +570,17 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     /**
-     * Highlights matched search query terms inside title string.
+     * Highlights search query terms inside title string.
      * @param {string} text
      * @param {string} query
      * @returns {string}
      */
     highlightMatch(text, query) {
-      if (!query) return this.escapeHtml(text);
+      if (!query || !text) return this.escapeHtml(text);
 
       const words = query.trim().split(/\s+/).filter(Boolean);
       if (words.length === 0) return this.escapeHtml(text);
 
-      // Create regex for all words
       const escapedWords = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
 
@@ -420,45 +588,36 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     /**
-     * Escapes HTML characters.
+     * Escapes HTML entities.
      * @param {string} str
      * @returns {string}
      */
     escapeHtml(str) {
-      return (str || '').replace(/[&<>"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[m]);
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     },
 
     /**
-     * Manages view states: 'loading', 'empty', 'error', 'content'.
+     * Controls global UI state containers.
      * @param {'loading'|'empty'|'error'|'content'} state
-     * @param {string} [customErrorMessage]
+     * @param {string} [msg]
      */
-    showState(state, customErrorMessage = '') {
-      if (this.elements.loadingState) {
-        this.elements.loadingState.classList.toggle('hidden', state !== 'loading');
-      }
-      if (this.elements.emptyState) {
-        this.elements.emptyState.classList.toggle('hidden', state !== 'empty');
-      }
-      if (this.elements.errorState) {
-        this.elements.errorState.classList.toggle('hidden', state !== 'error');
-        if (state === 'error' && this.elements.errorMessage) {
-          this.elements.errorMessage.textContent = customErrorMessage || 'Unable to load videos. Please try again later.';
-        }
-      }
-      if (this.elements.galleryGrid) {
-        this.elements.galleryGrid.classList.toggle('hidden', state !== 'content');
+    showState(state, msg) {
+      const el = this.elements;
+      if (el.loadingState) el.loadingState.classList.toggle('hidden', state !== 'loading');
+      if (el.emptyState) el.emptyState.classList.toggle('hidden', state !== 'empty');
+      if (el.errorState) el.errorState.classList.toggle('hidden', state !== 'error');
+      if (el.galleryGrid) el.galleryGrid.classList.toggle('hidden', state !== 'content');
+
+      if (state === 'error' && el.errorMessage && msg) {
+        el.errorMessage.textContent = msg;
       }
     },
 
     /**
-     * Renders high-end OTT video cards into the gallery grid.
+     * Renders video items into the catalog library grid.
      * @param {Array<Object>} videoList
      * @param {string} [query]
      */
@@ -472,8 +631,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       videoList.forEach((video, index) => {
-        const card = this.createVideoCard(video, index, videoList.length, query);
-        this.elements.galleryGrid.appendChild(card);
+        const cardNode = this.createVideoCard(video, index, videoList.length, query);
+        this.elements.galleryGrid.appendChild(cardNode);
       });
 
       if (VideoPlayer.currentVideo) {
@@ -482,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     /**
-     * Creates an accessible, high-end OTT video card DOM node.
+     * Creates an accessible, semantic OTT video card anchor DOM node with SEO metadata.
      * @param {Object} video
      * @param {number} index
      * @param {number} total
@@ -490,9 +649,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {HTMLElement}
      */
     createVideoCard(video, index, total, query = '') {
-      const card = document.createElement('article');
+      const slug = video.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(video.name) : `video-${index + 1}`);
+      const movieUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : `?movie=${encodeURIComponent(slug)}`;
+
+      const card = document.createElement('a');
       card.className = 'video-card';
+      card.href = movieUrl;
       card.dataset.fileId = video.file_id;
+      card.dataset.slug = slug;
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `Stream ${video.name}`);
@@ -504,8 +668,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const img = document.createElement('img');
       img.className = 'card-thumbnail';
       img.src = video.picture;
-      img.alt = video.name;
+      img.alt = `${video.name} movie poster`;
       img.loading = 'lazy';
+      img.width = 280;
+      img.height = 158;
       img.onerror = () => {
         img.onerror = null;
         img.src = 'assets/images/placeholder.svg';
@@ -571,16 +737,16 @@ document.addEventListener('DOMContentLoaded', () => {
       card.appendChild(infoContainer);
 
       // Selection trigger: Click or Keyboard (Enter / Space)
-      const selectVideoAction = () => {
+      const selectVideoAction = (e) => {
+        if (e) e.preventDefault();
         const originalIndex = this.videos.findIndex((v) => v.file_id === video.file_id);
-        this.selectAndPlayVideo(video, originalIndex >= 0 ? originalIndex : index);
+        this.selectAndPlayVideo(video, originalIndex >= 0 ? originalIndex : index, true);
       };
 
       card.addEventListener('click', selectVideoAction);
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectVideoAction();
+          selectVideoAction(e);
         }
       });
 
