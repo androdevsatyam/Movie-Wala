@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- MovieWala Homepage -->
+  <url>
+    <loc>https://androdevsatyam.github.io/Movie-Wala/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Movie: AwaraPan 2 -->
+  <url>
+    <loc>https://androdevsatyam.github.io/Movie-Wala/?movie=awarapan-2</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://androdevsatyam.github.io/Movie-Wala/assets/images/video_1.svg</image:loc>
+      <image:title>AwaraPan 2 Movie Poster</image:title>
+    </image:image>
+  </url>
+
+  <!-- Movie: Emraan Khan Movie -->
+  <url>
+    <loc>https://androdevsatyam.github.io/Movie-Wala/?movie=emraan-khan-movie</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://androdevsatyam.github.io/Movie-Wala/assets/images/video_2.svg</image:loc>
+      <image:title>Emraan Khan Movie Poster</image:title>
+    </image:image>
+  </url>
+
+  <!-- Movie: SatLuj Diljeet 1080p -->
+  <url>
+    <loc>https://androdevsatyam.github.io/Movie-Wala/?movie=satluj-diljeet-1080p</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://androdevsatyam.github.io/Movie-Wala/assets/images/video_3.svg</image:loc>
+      <image:title>SatLuj Diljeet 1080p Movie Poster</image:title>
+    </image:image>
+  </url>
+
+</urlset>
+
