@@ -25,15 +25,18 @@ const VideoPlayer = {
   currentIndex: -1,
   totalVideos: 0,
   onNextCallback: null,
+  onCloseCallback: null,
 
   /**
    * Initializes player elements and event handlers.
    * @param {Object} domElements
    * @param {Function} [onNext]
+   * @param {Function} [onClose]
    */
-  init(domElements, onNext) {
+  init(domElements, onNext, onClose) {
     this.elements = { ...this.elements, ...domElements };
     this.onNextCallback = onNext;
+    this.onCloseCallback = onClose;
     this.bindToolbarEvents();
     this.hidePlayerSection();
   },
@@ -204,6 +207,10 @@ const VideoPlayer = {
       card.setAttribute('aria-selected', 'false');
     });
 
+    if (typeof this.onCloseCallback === 'function') {
+      this.onCloseCallback();
+    }
+
     if (window.App && typeof window.App.showToast === 'function') {
       window.App.showToast('Player closed');
     }
@@ -251,15 +258,17 @@ const VideoPlayer = {
   },
 
   /**
-   * Shares current video URL.
+   * Shares current video SEO URL.
    */
   shareCurrentVideo() {
     if (!this.currentVideo) return;
 
-    const url = window.location.href.split('?')[0] + `?v=${this.currentIndex}`;
+    const slug = this.currentVideo.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(this.currentVideo.name) : `video-${this.currentIndex + 1}`);
+    const url = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : window.location.href;
+
     const shareData = {
-      title: `Watch ${this.currentVideo.name} on MovieWala`,
-      text: `Stream "${this.currentVideo.name}" in HD on MovieWala`,
+      title: `${this.currentVideo.name} | MovieWala`,
+      text: this.currentVideo.description || `Stream "${this.currentVideo.name}" in HD on MovieWala – Your Movie Adda, Anytime.`,
       url: url
     };
 
@@ -268,7 +277,7 @@ const VideoPlayer = {
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
         if (window.App && typeof window.App.showToast === 'function') {
-          window.App.showToast('Link copied to clipboard! 📋');
+          window.App.showToast('Movie link copied to clipboard! 📋');
         }
       });
     }

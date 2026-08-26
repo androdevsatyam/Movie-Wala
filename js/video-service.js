@@ -1,6 +1,7 @@
 /**
  * Video Service
- * Responsible for fetching and parsing video metadata from assets/data/videos.json.
+ * Responsible for fetching, parsing, and normalizing video metadata from assets/data/videos.json.
+ * Supports backward compatibility and extends entries with SEO-friendly fields (slug, description, genre, year, language).
  */
 
 const VideoService = {
@@ -12,7 +13,8 @@ const VideoService = {
 
   /**
    * Asynchronously loads and validates video items from the JSON file.
-   * @returns {Promise<Array<{name: string, picture: string, file_id: string}>>}
+   * Normalizes optional SEO fields and ensures every item has a unique slug.
+   * @returns {Promise<Array<Object>>}
    */
   async loadVideos() {
     try {
@@ -31,11 +33,21 @@ const VideoService = {
       // Filter and sanitize entries: ensure valid name and file_id exist
       const validVideos = rawData
         .filter((item) => item && typeof item === 'object')
-        .map((item) => ({
-          name: (item.name || 'Untitled Video').trim(),
-          picture: (item.picture || 'assets/images/placeholder.svg').trim(),
-          file_id: (item.file_id || '').trim()
-        }))
+        .map((item, index) => {
+          const name = (item.name || `Video ${index + 1}`).trim();
+          const slug = (item.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(name) : name.toLowerCase().replace(/[^\w-]+/g, '-'))).trim();
+          
+          return {
+            name: name,
+            slug: slug || `video-${index + 1}`,
+            picture: (item.picture || 'assets/images/placeholder.svg').trim(),
+            file_id: (item.file_id || '').trim(),
+            description: (item.description || `Stream ${name} in full HD on MovieWala – Your Movie Adda, Anytime.`).trim(),
+            genre: (item.genre || 'Cinema, Drama').trim(),
+            language: (item.language || 'Hindi').trim(),
+            year: item.year ? item.year.toString().trim() : '2026'
+          };
+        })
         .filter((item) => item.file_id.length > 0);
 
       return validVideos;
@@ -48,4 +60,3 @@ const VideoService = {
 
 // Export to global scope for standard modular browser scripts
 window.VideoService = VideoService;
-

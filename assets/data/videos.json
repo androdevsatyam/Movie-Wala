@@ -1,17 +1,32 @@
 [
   {
     "name": "AwaraPan 2",
+    "slug": "awarapan-2",
     "picture": "assets/images/video_1.svg",
+    "description": "Stream AwaraPan 2 in HD on MovieWala – Your Movie Adda, Anytime. Experience full cinematic drama with zero buffering.",
+    "genre": "Action, Drama",
+    "language": "Hindi",
+    "year": "2026",
     "file_id": "1mFZDN2vLpmgbx1H17xt6CDUY57mrXpVg"
   },
   {
     "name": "Emraan Khan Movie",
+    "slug": "emraan-khan-movie",
     "picture": "assets/images/video_2.svg",
+    "description": "Watch Emraan Khan Movie in 4K UHD streaming on MovieWala. Enjoy romantic thriller cinema anytime.",
+    "genre": "Romance, Thriller",
+    "language": "Hindi",
+    "year": "2026",
     "file_id": "1mFZDN2vLpmgbx1H17xt6CDUY57mrXpVg"
   },
   {
     "name": "SatLuj Diljeet 1080p",
+    "slug": "satluj-diljeet-1080p",
     "picture": "assets/images/video_3.svg",
+    "description": "Watch SatLuj Diljeet in 1080p full HD streaming on MovieWala. High quality cinema music and drama.",
+    "genre": "Drama, Musical",
+    "language": "Punjabi",
+    "year": "2026",
     "file_id": "10nQGwB8j0-vC1bpk4jF59UgE-PrZ3Jay"
   }
-] 
+]

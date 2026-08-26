@@ -61,10 +61,15 @@ const MaterialSlider = {
     this.elements.track.innerHTML = '';
 
     this.videos.forEach((video, index) => {
-      const slide = document.createElement('div');
+      const slug = video.slug || (window.SITE_CONFIG ? window.SITE_CONFIG.generateSlug(video.name) : `video-${index + 1}`);
+      const movieUrl = window.SITE_CONFIG ? window.SITE_CONFIG.getMovieUrl(slug) : `?movie=${encodeURIComponent(slug)}`;
+
+      const slide = document.createElement('a');
       slide.className = 'material-slide';
+      slide.href = movieUrl;
       slide.dataset.index = index.toString();
       slide.dataset.fileId = video.file_id;
+      slide.dataset.slug = slug;
       slide.setAttribute('role', 'button');
       slide.setAttribute('tabindex', '0');
       slide.setAttribute('aria-label', `Stream ${video.name}`);
@@ -74,9 +79,11 @@ const MaterialSlider = {
           <div class="slide-media">
             <img 
               src="${video.picture}" 
-              alt="${video.name}" 
+              alt="${video.name} movie poster" 
               class="slide-img" 
               loading="lazy"
+              width="360"
+              height="202"
               onerror="this.onerror=null;this.src='assets/images/placeholder.svg';"
             />
             <div class="slide-scrim"></div>
@@ -103,7 +110,7 @@ const MaterialSlider = {
 
           <!-- Slide Metadata Info -->
           <div class="slide-meta">
-            <h4 class="slide-title" title="${video.name}">${video.name}</h4>
+            <h3 class="slide-title" title="${video.name}">${video.name}</h3>
             <div class="slide-actions">
               <span class="slide-cta">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
@@ -118,7 +125,8 @@ const MaterialSlider = {
       `;
 
       // Click / Keyboard selection handler
-      const selectAction = () => {
+      const selectAction = (e) => {
+        if (e) e.preventDefault();
         if (typeof this.onSelectCallback === 'function') {
           this.onSelectCallback(video, index);
         }
@@ -127,8 +135,7 @@ const MaterialSlider = {
       slide.addEventListener('click', selectAction);
       slide.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectAction();
+          selectAction(e);
         }
       });
 

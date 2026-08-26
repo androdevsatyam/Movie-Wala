@@ -1,0 +1,9 @@
+# MovieWala - Robots Exclusion Standard
+# Primary Domain: https://androdevsatyam.github.io/Movie-Wala/
+
+User-agent: *
+Allow: /
+
+# XML Sitemap Index
+Sitemap: https://androdevsatyam.github.io/Movie-Wala/sitemap.xml
+

@@ -12,7 +12,7 @@
   [![License](https://img.shields.io/badge/License-MIT-a855f7?style=for-the-badge)](./)
 
   <br />
-
+ 
   <p align="center">
     <a href="#-key-features"><strong>Explore Features</strong></a> •
     <a href="#-live-experience"><strong>Experience OTT UI</strong></a> •
