@@ -11,7 +11,7 @@
   },
   {
     "name": "Indias Got Latent S2",
-    "slug": "igl-s2-",
+    "slug": "igl-s2",
     "picture": "assets/images/video_2.svg",
     "description": "INDIA GOT LATENT S2 Bonus EP1 ft. Raghav Juyal, Munawar, Niharika NM, Rohan Joshi",
     "genre": "Standup, Entertainment",
@@ -28,5 +28,15 @@
     "language": "Punjabi",
     "year": "2026",
     "file_id": "10nQGwB8j0-vC1bpk4jF59UgE-PrZ3Jay"
+  },
+  {
+    "name": "Indias Got Latent S2 E6",
+    "slug": "igl-s2-e6",
+    "picture": "assets/images/video_4.svg",
+    "description": "India's Got Latent Season 2 E6 : Ft. Varun Dhawan, Medha Shankr , sharon verma & Nishant Tanwar",
+    "genre": "Standup, Entertainment,Tv Serial",
+    "language": "Hindi,English",
+    "year": "2026",
+    "file_id": "1vqPtbvjwRssLxv8AFDXlpTuknzLyqhGX"
   }
 ]
