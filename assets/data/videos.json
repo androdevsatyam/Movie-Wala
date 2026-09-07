@@ -38,5 +38,15 @@
     "language": "Hindi,English",
     "year": "2026",
     "file_id": "1vqPtbvjwRssLxv8AFDXlpTuknzLyqhGX"
+  },
+  {
+    "name": "MirzaPur the Movie",
+    "slug": "mirzapur-the-movie",
+    "picture": "assets/images/video_5.svg",
+    "description": "Mirzapur the movie,Pankaj tripathi,Ali fazal",
+    "genre": "Movie, Action",
+    "language": "Hindi",
+    "year": "2026",
+    "file_id": "11TdK_YRpst4OX9a-uddAD0_Mrt_1E0aX"
   }
 ]
